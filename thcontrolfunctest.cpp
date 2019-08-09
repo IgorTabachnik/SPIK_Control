@@ -5,6 +5,7 @@ ThControlFuncTest::ThControlFuncTest(ExcelConfig* e)
     this->excel = e;
     list_th = new QList<ThPollDevices*>();
     work = true;
+	done = false;
 }
 
 ThControlFuncTest::~ThControlFuncTest()
@@ -13,7 +14,7 @@ ThControlFuncTest::~ThControlFuncTest()
 }
 
 void ThControlFuncTest::run(){
-
+	
     QString r = commonThread::loadFoundDevices();
     if(r != "0")
 	{
@@ -44,7 +45,7 @@ void ThControlFuncTest::run(){
     }
 
     if(empty_list_devices){
-        emit SendMesToMain("GUI Error: No Devices for test, please find Devices or check connections with COM port\n");
+        emit SendMesToMain("GUI Error: No Devices for test, please find Devices or check connections with COM port");
         return;
     }
 
@@ -57,7 +58,7 @@ void ThControlFuncTest::run(){
     int j = 0;
     int percent = 0;
     while(work){
-
+		done = false;
         if(j<list_th->length()){
             ThPollDevices *th = list_th->at(j);
 
@@ -74,7 +75,12 @@ void ThControlFuncTest::run(){
                 }
                 list_th->removeAt(j);
             }
+
 			emit sendProgressTest(percent);
+			if (percent == 100) {
+				work = false;
+			}
+			
 			Sleep(100);
 			
             //emit SendMesToMain("GUI Progress:" + QString("%1").arg(percent));//Throw BAD ALLOC!!!
@@ -88,9 +94,9 @@ void ThControlFuncTest::run(){
     //Stop all Thread Poll Devices
     for(int l=0; l<list_th->size(); l++){
        list_th->at(l)->Stop();
+	   list_th->at(l)->cStop = true;
+	   list_th->at(l)->wait(WaitStopProcess);
     }
-
-    Sleep(500);
 
     //Disconnect
     for(int l=0; l<list_con->size(); l++){
@@ -98,6 +104,56 @@ void ThControlFuncTest::run(){
     }
 
     delete list_con;
+	done = true;
+}
+
+QStringList ThControlFuncTest::getResultFunctionTest()
+{
+	QStringList data;
+	for (int i = 0; i < list_th->size(); i++) {
+		ThPollDevices* th = list_th->at(i);
+		FunctionTest* f = th->getFuncTest();
+		QMap<QString, FunctionTest::StateDevice> res = f->getResultFunctionTest();
+
+		QString str;
+		for each (QString key in res.keys())
+		{
+			str = key;
+			FunctionTest::StateDevice state = res[key];
+
+			//Making results of one device
+			for (int j = 0; j < Expected_Count_Of_MKM; j++) {
+				if (((1 << j) & 255) == (1 << j)) {
+					str.append(QString(";%1").arg(state.results[j], 2, 16));
+				}
+				else {
+					str.append(QString(";NU"));
+				}
+			}
+			data.append(str);
+		}
+	}
+	return data;
+}
+
+QMap<QString, FunctionTest::StateDevice> ThControlFuncTest::getStatesFunctionTests()
+{
+	QMap<QString, FunctionTest::StateDevice> Res;
+
+	for (int i = 0; i < list_th->size(); i++) {
+		ThPollDevices* th = list_th->at(i);
+		FunctionTest* f = th->getFuncTest();
+		QMap<QString, FunctionTest::StateDevice> iRes = f->getResultFunctionTest();
+
+		QString str;
+		for each (QString key in iRes.keys())
+		{
+			FunctionTest::StateDevice state = iRes[key];
+			Res.insert(key, state);
+		}
+	}
+
+	return Res;
 }
 
 void ThControlFuncTest::TransitMessage(QString mes){

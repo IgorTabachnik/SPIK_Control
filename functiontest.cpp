@@ -13,10 +13,6 @@ FunctionTest::FunctionTest(modbusConnection* connect_, const QList<DeviceModbus>
         }
     }
 
-    if(devOP.devType!=DeviceModbus::OP){
-        devOP.nameDevice="OP1"; //nominal for work;
-    }
-
     for(int k=0; k<list_dev->size();k++)
     {
         DeviceModbus dev = list_dev->at(k);
@@ -257,6 +253,7 @@ QString FunctionTest::SendExcelConfigToDevice(DeviceModbus device)
     Sleep(delayMB);
 
     //Init Func test
+	comand_update = 1;
     result = connect->sendModbusRequest(device.address,MODBUS_FC_WRITE_MULTIPLE_REGISTERS,RegInitFuncTest, 1, &comand_update);
     if(result!="0"){
         return "Error: Don't transmit Comand for init Function Test to Device:"+device.nameDevice;
@@ -297,24 +294,37 @@ QString FunctionTest::StartFunctionTest()
 
 QString FunctionTest::StopFunctionsTest()
 {
-    QString err = 0;
-    uint16_t command = 1;
-    uint32_t delay = DelayRequest;
+	QString err = 0;
+	uint16_t command = 1;
+	uint32_t delay = DelayRequest;
 
-    for(uint16_t i=0;i<list_dev->size();i++)
-    {
-        DeviceModbus dev = list_dev->at(i);
-        if(dev.devType==DeviceModbus::BK)
-        {
-            err = connect->sendModbusRequest(dev.address,MODBUS_FC_WRITE_SINGLE_REGISTER, RegFinishFuncTest, 1, &command);
-            if(err!="0"){
-                return err;
-            }
-            Sleep(delay);
-        }
-    }
+	for (uint16_t i = 0; i < list_dev->size(); i++)
+	{
+		DeviceModbus dev = list_dev->at(i);
+		if (dev.devType == DeviceModbus::BK)
+		{
 
-    return err;
+			err = connect->sendModbusRequest(dev.address, MODBUS_FC_WRITE_SINGLE_REGISTER, RegFinishFuncTest, 1, &command);
+
+			if (err != "0") {
+				for (int j = 0; j < CountCommunicationsAttemps; j++) {
+					err = connect->sendModbusRequest(dev.address, MODBUS_FC_WRITE_SINGLE_REGISTER, RegFinishFuncTest, 1, &command);
+					Sleep(delay);
+					if (err == "0") {
+						break;
+					}
+				}
+				if (err == "0") {
+					continue;
+				}
+				return QString("Finished test command not transferred to device ->" + devOP.nameDevice + dev.nameDevice);
+			}
+
+			Sleep(delay);
+		}
+	}
+
+	return err;
 }
 
 
@@ -382,6 +392,7 @@ int FunctionTest::GetPercentCompleted()
 			percent += (st.current_inst * 100) / size_ft_table;
 		}
     }
+
 	percent /= stateDevs.size();
 
     return percent;
@@ -480,5 +491,10 @@ const QList<DeviceModbus>* FunctionTest::GetListDev()
 modbusConnection* FunctionTest::getModBusConnection()
 {
     return connect;
+}
+
+QMap<QString, FunctionTest::StateDevice> FunctionTest::getResultFunctionTest()
+{
+	return stateDevs;
 }
 

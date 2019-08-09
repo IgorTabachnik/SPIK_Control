@@ -10,6 +10,9 @@
 #include "dmodbussettings.h"
 #include "help_func.h"
 #include "pwr_device.h"
+#include "Lot.h"
+#include "PreTestResult.h"
+
 
 /*Defining*/
 #define ORGANIZATION_NAME "GS NANOTECH"
@@ -19,6 +22,7 @@
 #define CONFIG_PATH "settings/config_path"
 #define CONFIG_ModBus "/ModBusDevices.ini"
 #define CONFIG_PwrDevice "/PWRDevices.ini"
+#define RESULT_PATH "settings/result_path"
 
 namespace Ui {
 class MainWindow;
@@ -41,9 +45,11 @@ private slots:
     void UpdateSettingsSPiK(void);
 
     void on_bStartTest_clicked();
+	void on_bStartLot_clicked();
 
     void on_actionSettings_triggered();
 
+	void on_bShowResult_clicked();
 private:
     Ui::MainWindow *ui;
     ThControlFuncTest* th_control_func_test;
@@ -52,8 +58,11 @@ private:
     ExcelConfig* excel;
     PWR_Device* pwr;
     bool start_test;
+	Lot* lot;
+	PreTestResult* testResult;
 
-    QString pathDirConfig;
+	void timerEvent(QTimerEvent* event) override;
+	uint8_t state_test;
 };
 
 #endif // MAINWINDOW_H

@@ -24,34 +24,36 @@ QT_BEGIN_NAMESPACE
 class Ui_Settings_SPiK
 {
 public:
-    QGridLayout *gridLayout_4;
+    QGridLayout *gridLayout_3;
     QGroupBox *groupBox;
-    QGridLayout *gridLayout_2;
+    QGridLayout *gridLayout_5;
     QGridLayout *gridLayout;
     QLabel *label;
     QLineEdit *lineEdit;
     QToolButton *toolButton;
+    QGroupBox *groupBox_2;
+    QGridLayout *gridLayout_4;
+    QGridLayout *gridLayout_2;
+    QLabel *label_2;
+    QLineEdit *lineEdit_2;
+    QToolButton *toolButton_2;
     QPushButton *pushButton;
     QPushButton *pushButton_2;
-    QGroupBox *groupBox_2;
-    QGridLayout *gridLayout_3;
-    QLabel *label_2;
-    QLabel *label_3;
 
     void setupUi(QWidget *Settings_SPiK)
     {
         if (Settings_SPiK->objectName().isEmpty())
             Settings_SPiK->setObjectName(QStringLiteral("Settings_SPiK"));
-        Settings_SPiK->resize(631, 303);
-        gridLayout_4 = new QGridLayout(Settings_SPiK);
-        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
+        Settings_SPiK->resize(655, 207);
+        gridLayout_3 = new QGridLayout(Settings_SPiK);
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
         groupBox = new QGroupBox(Settings_SPiK);
         groupBox->setObjectName(QStringLiteral("groupBox"));
         QFont font;
         font.setPointSize(14);
         groupBox->setFont(font);
-        gridLayout_2 = new QGridLayout(groupBox);
-        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+        gridLayout_5 = new QGridLayout(groupBox);
+        gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         label = new QLabel(groupBox);
@@ -70,10 +72,41 @@ public:
         gridLayout->addWidget(toolButton, 0, 2, 1, 1);
 
 
-        gridLayout_2->addLayout(gridLayout, 0, 0, 1, 1);
+        gridLayout_5->addLayout(gridLayout, 0, 0, 1, 1);
 
 
-        gridLayout_4->addWidget(groupBox, 0, 0, 1, 2);
+        gridLayout_3->addWidget(groupBox, 0, 0, 1, 2);
+
+        groupBox_2 = new QGroupBox(Settings_SPiK);
+        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        groupBox_2->setFont(font);
+        gridLayout_4 = new QGridLayout(groupBox_2);
+        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+        label_2 = new QLabel(groupBox_2);
+        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setFont(font);
+
+        gridLayout_2->addWidget(label_2, 0, 0, 1, 1);
+
+        lineEdit_2 = new QLineEdit(groupBox_2);
+        lineEdit_2->setObjectName(QStringLiteral("lineEdit_2"));
+        lineEdit_2->setFont(font);
+
+        gridLayout_2->addWidget(lineEdit_2, 0, 1, 1, 1);
+
+        toolButton_2 = new QToolButton(groupBox_2);
+        toolButton_2->setObjectName(QStringLiteral("toolButton_2"));
+        toolButton_2->setFont(font);
+
+        gridLayout_2->addWidget(toolButton_2, 0, 2, 1, 1);
+
+
+        gridLayout_4->addLayout(gridLayout_2, 0, 0, 1, 1);
+
+
+        gridLayout_3->addWidget(groupBox_2, 1, 0, 1, 2);
 
         pushButton = new QPushButton(Settings_SPiK);
         pushButton->setObjectName(QStringLiteral("pushButton"));
@@ -82,32 +115,14 @@ public:
         font1.setPointSize(14);
         pushButton->setFont(font1);
 
-        gridLayout_4->addWidget(pushButton, 2, 0, 1, 1);
+        gridLayout_3->addWidget(pushButton, 2, 0, 1, 1);
 
         pushButton_2 = new QPushButton(Settings_SPiK);
         pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
         pushButton_2->setEnabled(true);
         pushButton_2->setFont(font1);
 
-        gridLayout_4->addWidget(pushButton_2, 2, 1, 1, 1);
-
-        groupBox_2 = new QGroupBox(Settings_SPiK);
-        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        groupBox_2->setFont(font);
-        gridLayout_3 = new QGridLayout(groupBox_2);
-        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        label_2 = new QLabel(groupBox_2);
-        label_2->setObjectName(QStringLiteral("label_2"));
-
-        gridLayout_3->addWidget(label_2, 0, 0, 1, 1);
-
-        label_3 = new QLabel(groupBox_2);
-        label_3->setObjectName(QStringLiteral("label_3"));
-
-        gridLayout_3->addWidget(label_3, 1, 0, 1, 1);
-
-
-        gridLayout_4->addWidget(groupBox_2, 1, 0, 1, 2);
+        gridLayout_3->addWidget(pushButton_2, 2, 1, 1, 1);
 
 
         retranslateUi(Settings_SPiK);
@@ -121,11 +136,11 @@ public:
         groupBox->setTitle(QApplication::translate("Settings_SPiK", "Config files", nullptr));
         label->setText(QApplication::translate("Settings_SPiK", "Directory to configurations files", nullptr));
         toolButton->setText(QApplication::translate("Settings_SPiK", "...", nullptr));
+        groupBox_2->setTitle(QApplication::translate("Settings_SPiK", "Result files", nullptr));
+        label_2->setText(QApplication::translate("Settings_SPiK", "Directory to Results", nullptr));
+        toolButton_2->setText(QApplication::translate("Settings_SPiK", "...", nullptr));
         pushButton->setText(QApplication::translate("Settings_SPiK", "Accept", nullptr));
         pushButton_2->setText(QApplication::translate("Settings_SPiK", "Exit", nullptr));
-        groupBox_2->setTitle(QApplication::translate("Settings_SPiK", "Power Supply", nullptr));
-        label_2->setText(QApplication::translate("Settings_SPiK", "PWR name1", nullptr));
-        label_3->setText(QApplication::translate("Settings_SPiK", "PWR name2", nullptr));
     } // retranslateUi
 
 };

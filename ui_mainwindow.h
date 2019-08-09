@@ -54,6 +54,7 @@ public:
     QGroupBox *groupBox_3;
     QGridLayout *gridLayout_7;
     QProgressBar *progressBar;
+    QPushButton *bShowResult;
     QStatusBar *statusBar;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -187,6 +188,11 @@ public:
 
         gridLayout_7->addWidget(progressBar, 0, 0, 1, 1);
 
+        bShowResult = new QPushButton(groupBox_3);
+        bShowResult->setObjectName(QStringLiteral("bShowResult"));
+
+        gridLayout_7->addWidget(bShowResult, 1, 0, 1, 1);
+
 
         gridLayout_8->addWidget(groupBox_3, 2, 0, 1, 1);
 
@@ -223,6 +229,7 @@ public:
         label_3->setText(QApplication::translate("MainWindow", "Config file", nullptr));
         bStartTest->setText(QApplication::translate("MainWindow", "Start Test", nullptr));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "PROGRESS", nullptr));
+        bShowResult->setText(QApplication::translate("MainWindow", "show result test", nullptr));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", nullptr));
     } // retranslateUi
 

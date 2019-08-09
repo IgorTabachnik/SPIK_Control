@@ -53,18 +53,12 @@ void ThPollDevices::run()
 				Sleep(100);
             }else{
                 if(cStop){
-					error = test->StartFunctionTest();
+					error = test->StopFunctionsTest();
                     break;
                 }
                 Sleep(100);
             }
         }
-
-    /*
-        while(wrong_way){
-            Sleep(100);
-        }*/
-        //test->OutputFuncTestResults();
     }
 
 }

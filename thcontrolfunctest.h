@@ -6,6 +6,7 @@
 #include "functiontest.h"
 #include "commonThread.h"
 #include "dmodbussettings.h"
+#define WaitStopProcess 10000
 
 #define BaudeRateDef 115200
 class ThControlFuncTest : public QThread
@@ -21,8 +22,9 @@ public:
     ~ThControlFuncTest();
     void run() override;
 
-    bool work;
-
+	bool work; bool done;
+	QStringList getResultFunctionTest();
+	QMap<QString, FunctionTest::StateDevice> getStatesFunctionTests();
 signals:
     void SendMesToMain(QString mes);
 	void sendProgressTest(int percent);

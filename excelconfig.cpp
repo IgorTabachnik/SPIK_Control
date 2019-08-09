@@ -88,8 +88,6 @@ QString ExcelConfig::OpenFile()
 
 void ExcelConfig::ClearAndClose(void)
 {
-    this->extract_func_test_table = false;
-    this->extract_openshort_test_table = false;
     if(sheet!=NULL){
         this->sheet->clear();
         delete sheet;

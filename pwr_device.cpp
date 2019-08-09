@@ -1,77 +1,214 @@
 #include "pwr_device.h"
 #include "mainwindow.h"
 
-QString PWR_Device::pwr_array[5]={"PWS4323","DP832A","PSU7","N5747A"};
+QString PWR_Device::array_type_pwr[5]={"PWS4323","DP832A","PSU7","N5747A"};
 QString PWR_Device::pathSavePwrDevice = QDir::currentPath()+CONFIG_PwrDevice;
 QSettings PWR_Device::pwr_settings(PWR_Device::pathSavePwrDevice,QSettings::IniFormat);
-QMap<QString, QString> PWR_Device::devices;
+QMap<QString, PWR_Device*> PWR_Device::devices;
 
-PWR_Device::PWR_Device()
+
+PWR_Device::PWR_Device(QString name, QString addr, Type_pwr_device t):pwrname(name),pwraddr(addr),type(t)
 {
 
 }
 
-QString PWR_Device::AllInstrWrite(QString instr)
+PWR_Device::PWR_Device(QString addr): pwraddr(addr)
+{
+
+}
+
+PWR_Device::PWR_Device() 
+{
+
+}
+
+QString PWR_Device::AllPwrOff()
+{
+	QString res;
+	foreach(QString key, devices.keys()) {
+		res = devices[key]->PwrOff();
+		if (res != "0") {
+			return res;
+		}
+	}
+	return "0";
+}
+
+QString PWR_Device::AllPwrOn() 
+{
+	QString res;
+	foreach(QString key, devices.keys()) {
+		res = devices[key]->PwrOn();
+		if (res != "0") {
+			return res;
+		}
+	}
+	return "0";
+}
+
+QString PWR_Device::AllSetSettings(qreal Voltage, qreal Current, int channel)
 {
     QString res="0";
     PWR_Device power;
     foreach (QString key, devices.keys()) {
-        QString pwr_addr = devices[key];
-        bool ok = power.InstrWrite(pwr_addr,instr);
-        if(!ok){
-            res = "Error: transmit cmd is "+instr+" to device: "+key+" is fail";
-        }
+        
+		QString cmd;
+		QString cmd1, cmd2;
+		bool ok, ok1, ok2;
+		
+		switch (devices[key]->type)
+		{
+		case PWS4323:
+			cmd1 = QString("VOLT %1").arg(Voltage);
+			cmd2 = QString("CURR %1").arg(Current);
+			ok1 = devices[key]->InstrWrite(cmd1);
+			if (!ok1) {
+				return "Error: transmit cmd is " + cmd1 + " to device: " + key + " is fail";
+			}
+
+			ok2 = devices[key]->InstrWrite(cmd2);
+			if (!ok2) {
+				return "Error: transmit cmd is " + cmd2 + " to device: " + key + " is fail";
+			}
+			break;
+		case DP832A:
+			cmd = QString(":APPL CH%1, %2, %3").arg(channel).arg(Voltage).arg(Current);
+			ok = devices[key]->InstrWrite(cmd);
+			if (!ok) {
+				return "Error: transmit cmd is " + cmd + " to device: " + key + " is fail";
+			}
+			break;
+		case PSU7:
+			cmd1 = QString("VOLT %1").arg(Voltage);
+			cmd2 = QString("CURR %1").arg(Current);
+			ok1 = devices[key]->InstrWrite(cmd1);
+			if (!ok1) {
+				return "Error: transmit cmd is " + cmd1 + " to device: " + key + " is fail";
+			}
+
+			ok2 = devices[key]->InstrWrite(cmd2);
+			if (!ok2) {
+				return "Error: transmit cmd is " + cmd2 + " to device: " + key + " is fail";
+			}
+			break;
+		case N5747A:
+			cmd1 = QString("VOLT %1").arg(Voltage);
+			cmd2 = QString("CURR %1").arg(Current);
+			ok1 = devices[key]->InstrWrite(cmd1);
+			if (!ok1) {
+				return "Error: transmit cmd is " + cmd1 + " to device: " + key + " is fail";
+			}
+
+			ok2 = devices[key]->InstrWrite(cmd2);
+			if (!ok2) {
+				return "Error: transmit cmd is " + cmd2 + " to device: " + key + " is fail";
+			}
+			break;
+		default:
+			break;
+		}
     }
     return res;
 }
 
-QString PWR_Device::AllSetSettings(float Voltage, float Current, int channel)
+QString PWR_Device::PwrOn(){
+    QString res="0";
+	QString cmd;
+	switch (this->type)
+	{
+	case PWS4323:
+		cmd = QString("OUTP ON");
+		break;
+	case DP832A:
+		cmd = QString(":OUTP CH%1,ON").arg(1);
+		break;
+	case PSU7:
+		cmd = QString("OUTP ON");
+		break;
+	case N5747A:
+		cmd = QString("OUTP ON");
+		break;
+	default:
+		break;
+	}
+
+	bool ok = this->InstrWrite(cmd);
+	if (!ok) {
+		res = "Error: transmit cmd is " + cmd + " to device: " + pwrname + " is fail";
+	}
+    return res;
+}
+
+QString PWR_Device::PwrOff(){
+    QString res="0";
+    PWR_Device power;
+    
+	QString cmd;
+	switch (this->type)
+	{
+	case PWS4323:
+		cmd = QString("OUTP OFF");
+		break;
+	case DP832A:
+		cmd = QString(":OUTP CH%1,OFF").arg(1);
+		break;
+	case PSU7:
+		cmd = QString("OUTP OFF");
+		break;
+	case N5747A:
+		cmd = QString("OUTP OFF");
+		break;
+	default:
+		break;
+	}
+
+    bool ok = this->InstrWrite(cmd);
+    if(!ok){
+        res = "Error: transmit cmd is "+cmd+" to device: "+pwrname+" is fail";
+    }
+    
+    return res;
+}
+
+QString PWR_Device::MeasVoltage()
 {
-    QString res="0";
-    PWR_Device power;
-    foreach (QString key, devices.keys()) {
-        QString pwr_addr = devices[key];
-        QString cmd = QString(":APPL CH%1, %2, %3").arg(channel).arg(Voltage).arg(Current);
-        bool ok = power.InstrWrite(pwr_addr,cmd);
-        if(!ok){
-            res = "Error: transmit cmd is "+cmd+" to device: "+key+" is fail";
-        }
-    }
-    return res;
-}
+	QString res;
+	PWR_Device power;
 
-QString PWR_Device::AllPwrOn(int channel){
-    QString res="0";
-    PWR_Device power;
-    foreach (QString key, devices.keys()) {
-        QString pwr_addr = devices[key];
-        QString cmd = QString(":OUTP CH%1,ON").arg(channel);
-        bool ok = power.InstrWrite(pwr_addr,cmd);
-        if(!ok){
-            res = "Error: transmit cmd is "+cmd+" to device: "+key+" is fail";
-        }
-    }
+	QString cmd;
+	switch (this->type)
+	{
+	case PWS4323:
+		cmd = QString("Meas:Volt?");
+		break;
+	case DP832A:
+		cmd = QString(":MEASure:VOLTage:DC? CH%1").arg(1);
+		break;
+	case PSU7:
+		cmd = QString("Meas:Volt?");
+		break;
+	case N5747A:
+		cmd = QString("Meas:Volt?");
+		break;
+	default:
+		break;
+	}
 
-    return res;
-}
+	bool ok = this->InstrWrite(cmd);
+	if (!ok) {
+		return "Error: transmit cmd is " + cmd + " to device: " + pwrname + " is fail";
+	}
+	ok = this->InstrRead(&res);
+	if (!ok) {
+		return "Error: read Voltage from " + pwrname;
+	}
 
-QString PWR_Device::AllPwrOff(int channel){
-    QString res="0";
-    PWR_Device power;
-    foreach (QString key, devices.keys()) {
-        QString pwr_addr = devices[key];
-        QString cmd = QString(":OUTP CH%1,OFF").arg(channel);
-        bool ok = power.InstrWrite(pwr_addr,cmd);
-        if(!ok){
-            res = "Error: transmit cmd is "+cmd+" to device: "+key+" is fail";
-        }
-    }
-    return res;
+	return res;
 }
 
 QString PWR_Device::SearchPWRDevices()
 {
-    PWR_Device power;
+    PWR_Device *power = new PWR_Device();
     ViStatus status;
     ViSession defaultRM;
     ViString expr = ViString("?*");
@@ -94,22 +231,48 @@ QString PWR_Device::SearchPWRDevices()
 
         memset(instrDesc,0,1000);
 
+		Type_pwr_device type;
         // Find resource
         status = viFindRsrc(defaultRM,expr,findList, retcnt, instrDesc);
         for (i = 0;i < (*retcnt);i++)
         {
          // Get instrument name
          strSrc = QString::fromUtf8(instrDesc);
-         power.InstrWrite(strSrc,"*IDN?");
+		 power->pwraddr = strSrc;
+
+		 power->InstrWrite("*IDN?");
          Sleep(200);
-         power.InstrRead(strSrc,&strInstr);
+		 power->InstrRead(&strInstr);
 
          strInstr.toUpper();
 
          if(strInstr.size()>0)
          {
+			 for (int i = 0; i < sizeof(array_type_pwr)/sizeof(QString); i++) {
+				 if (strInstr.contains(array_type_pwr[i])) {
+					 switch (i) {
+					 case 0:
+						 type = PWS4323;
+						 break;
+					 case 1:
+						 type = DP832A;
+						 break;
+					 case 2:
+						 type = PSU7;
+						 break;
+					 case 3:
+						 type = N5747A;
+						 break;
+					 default:break;
+					 }
+
+					 power->pwrname = strInstr;
+					 power->type = type;
+				 }
+			 }
             bFind = true;
-            devices.insert(strInstr, strSrc);
+			
+			devices.insert(strInstr, power);
          }
 
          //Find next instrument
@@ -128,7 +291,7 @@ QString PWR_Device::SearchPWRDevices()
 }
 
 
-bool PWR_Device::InstrWrite(QString strAddr, QString strContent)
+bool PWR_Device::InstrWrite(QString strContent)
 {
     ViSession defaultRM,instr;
     ViStatus status;
@@ -140,7 +303,7 @@ bool PWR_Device::InstrWrite(QString strAddr, QString strContent)
     QByteArray ba1,ba2;
 
     //Change the adress's data style from QString to char*
-    ba1 = strAddr.toLocal8Bit();
+    ba1 = pwraddr.toLocal8Bit();
     SendAddr = ba1.data();
 
     //Change the command's data style from QString to char*
@@ -164,24 +327,23 @@ bool PWR_Device::InstrWrite(QString strAddr, QString strContent)
     status = viClose(instr);
     status = viClose(defaultRM);
 
-    emit sendMessage("Console: send commnd: "+strContent+" to pwr supply-> "+strAddr);
+    emit sendMessage("Console: send commnd: "+strContent+" to pwr supply-> "+pwrname);
     return true;
 }
 
-bool PWR_Device::InstrRead(QString strAddr, QString *pstrResult)
+bool PWR_Device::InstrRead(QString *pstrResult)
 {
     ViSession defaultRM,instr;
     ViStatus status; ViUInt32 retCount;
     char * SendAddr = NULL;
     unsigned char RecBuf[MAX_REC_SIZE];
-    bool bReadOK = false;
     QString str;
     QByteArray ba1,ba2;
 
     memset(RecBuf,0,MAX_REC_SIZE);
 
     //Change the adress's data style from QString to char*
-    ba1 = strAddr.toLocal8Bit();
+    ba1 = pwraddr.toLocal8Bit();
     SendAddr = ba1.data();
 
     //open the VISA instrument
@@ -194,19 +356,34 @@ bool PWR_Device::InstrRead(QString strAddr, QString *pstrResult)
 
     //open the instrument
     status = viOpen(defaultRM, SendAddr, VI_NULL, VI_NULL, &instr);
-
+	if (status < VI_SUCCESS)
+	{
+		return false;
+	}
     //read from instrument
     status = viRead(instr,RecBuf, MAX_REC_SIZE, &retCount);
+	if (status < VI_SUCCESS)
+	{
+		return false;
+	}
 
     //close the instrument
     status = viClose(instr);
+	if (status < VI_SUCCESS)
+	{
+		return false;
+	}
     status = viClose(defaultRM);
+	if (status < VI_SUCCESS)
+	{
+		return false;
+	}
 
 
     pstrResult->clear();
     pstrResult->append((char*)RecBuf);
 
-    return bReadOK;
+    return true;
 }
 
 
@@ -227,10 +404,7 @@ QString PWR_Device::SavePWRSettings()
     // Iterate for every Name Devices
     foreach(QString pwrName, devices.keys())
     {
-        QString result = "";
-        QString pwrAddr = devices[pwrName];
-
-        pwr_settings.setValue(pwrName, pwrAddr);
+        pwr_settings.setValue(pwrName, devices[pwrName]->pwraddr);
         pwr_settings.sync();
     }
 
@@ -254,9 +428,12 @@ QString PWR_Device::LoadPWRSettings()
 
         foreach (QString key, keys)
         {
-            // Get devices names
-            QString strValue = pwr_settings.value(key).toString();
-            devices.insert(key, strValue);
+			//key ->name device
+			
+            QString strValue = pwr_settings.value(key).toString();//USB address
+
+			PWR_Device* dev = new PWR_Device(key, strValue, StringToType(key));
+            devices.insert(key, dev);
             qInfo()<< key;
         }
 
@@ -270,4 +447,30 @@ QString PWR_Device::LoadPWRSettings()
         qInfo() << "Not found file: "+pathSavePwrDevice;
         return "Error: Not foun file"+pathSavePwrDevice;
     }
+}
+
+PWR_Device::Type_pwr_device PWR_Device::StringToType(QString name)
+{
+	PWR_Device::Type_pwr_device t;
+	for (int i = 0; i < sizeof(array_type_pwr) / sizeof(QString); i++) {
+		if (name.contains(array_type_pwr[i])) {
+			switch (i) {
+			case 0:
+				t = PWS4323;
+				break;
+			case 1:
+				t = DP832A;
+				break;
+			case 2:
+				t = PSU7;
+				break;
+			case 3:
+				t = N5747A;
+				break;
+			default:break;
+			}
+		}
+	}
+	return t;
+
 }

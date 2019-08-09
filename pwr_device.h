@@ -15,35 +15,50 @@ class PWR_Device : public QObject
 {
     Q_OBJECT
 public:
-    PWR_Device();
+	
+    PWR_Device(QString pwraddr);
+	PWR_Device();
+
     QString pwraddr;
+	QString pwrname;
+	typedef enum
+	{
+		PWS4323,
+		DP832A,
+		PSU7,
+		N5747A
+	}Type_pwr_device;
+	Type_pwr_device type;
 
-    bool ConnectToPWR();
-    bool InstrWrite(QString strAddr, QString strContent);//write function
-    bool InstrRead(QString strAddr, QString *pstrResult);//read from the instrument
+	PWR_Device(QString name, QString pwraddr, Type_pwr_device type);
 
-    static QString AllSetSettings(float Voltage, float Current, int channel);
-    static QString AllPwrOn(int channel);
-    static QString AllPwrOff(int channel);
-    static QString AllInstrWrite(QString instr);
+    bool InstrWrite(QString strContent);//write function
+    bool InstrRead(QString *pstrResult);//read from the instrument
 
+	QString MeasVoltage();
+	QString PwrOn();
+	QString PwrOff();
+
+    static QString AllSetSettings(qreal Voltage, qreal Current, int channel);
+	static QString AllPwrOff();
+	static QString AllPwrOn();
     static QString SearchPWRDevices();
-
-    static QString pwr_array[5];
+    
     static QSettings pwr_settings;
     static QString pathSavePwrDevice;
     static QString SavePWRSettings();
     static QString LoadPWRSettings();
 
-    static QMap<QString, QString> devices;
+
+	static QString array_type_pwr[5];
+    static QMap<QString, PWR_Device*> devices;
+	static Type_pwr_device StringToType(QString name);
 
 signals:
     void sendMessage(QString mes);
 
 
 public slots:
-
-
 
 };
 

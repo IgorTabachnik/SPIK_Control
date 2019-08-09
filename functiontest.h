@@ -13,6 +13,7 @@
 
 #define Expected_Count_Of_MKM 8
 #define DelayRequest 100
+#define CountCommunicationsAttemps 10
 
 class FunctionTest
 {
@@ -43,6 +44,7 @@ public:
     QString SendExcelConfigToDevice(DeviceModbus device);
     QString SendExcelConfigToAllDevices();
     QString UpdateStateFuncTest();
+	QMap<QString, StateDevice> getResultFunctionTest();
 
     //Control func test
     QString StartFunctionTest();

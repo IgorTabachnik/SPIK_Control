@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QFileDialog>
+#include <QAction>
 
 namespace Ui {
 class Settings_SPiK;
@@ -17,16 +18,22 @@ public:
     ~Settings_SPiK();
     QString getDirConfigPath(void);
 
-private slots:
-    void on_pushButton_2_clicked();
+	QString getDirResultPath(void);
 
-    void on_pushButton_clicked();
+private slots:
+
+	void on_pushButton_clicked();
+
+	void on_pushButton_2_clicked();
 
     void on_toolButton_clicked();
 
+	void on_toolButton_2_clicked();
+
 private:
     Ui::Settings_SPiK *ui;
-    QString directory;
+    QString dirConfig;
+	QString dirResult;
 
 signals:
     void UpdateEvent(void);
